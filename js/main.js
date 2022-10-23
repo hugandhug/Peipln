@@ -318,8 +318,10 @@ function showContent(cursor) {
     questionInner.innerHTML += `<div id="questionResponses"></div>`;
     questionInner.innerHTML += `<div id="questionAnswer" tabindex="0">${currentGame.content[currentQuestionIndex].answers[0]}</div>`;
 
-    if(adminWindow != undefined)
-        adminWindow.document.getElementById("response").innerHTML = `Réponse : ${currentGame.content[currentQuestionIndex].answers[0]}`;
+    if(adminWindow != undefined) {
+        adminWindow.document.getElementById("response").innerHTML = `Question : ${currentGame.content[currentQuestionIndex].question}
+        Réponse : ${currentGame.content[currentQuestionIndex].answers[0]}`;
+    }
 
     if (currentQuestionIndex < 1) { prev.style.left = "-100%"; } else { prev.style.left = "0%"; }
     if (currentQuestionIndex + 1 >= currentGame.content.length) { next.style.right = "-100%"; } else { next.style.right = "0%"; }
