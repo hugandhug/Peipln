@@ -150,17 +150,17 @@
     cursor: pointer;
 }
 
-#randomizeBox {
+#randomizeBox, #wordByWordBox {
     width: auto;
 }
 
-#randomizeBoxDiv {
+#gameOptionDiv {
     display: flex;
     position: absolute;
     top: 75%;
 }
 
-#randomizeBoxLabel {
+#randomizeBoxLabel, #wordByWordLabel {
     font-size: 20px;
 }
 

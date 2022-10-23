@@ -29,6 +29,11 @@ var currentQuestionIndex = undefined;
 // The response window
 var adminWindow = undefined;
 
+// Number of word to show for the question
+var numberOfWords = 0;
+
+var wordByWord = true;
+
 /// Sauvegarde et chargement des joueurs
 
 /**
@@ -200,9 +205,11 @@ function showGame(id) {
 
     questionInner.innerHTML = `<div id="questionTitle">${games[id].name}</div>\
                     <div id="questionRule">${games[id].rules}</div>
-                    <div id="randomizeBoxDiv">
+                    <div id="gameOptionDiv">
                         <input type="checkbox" id="randomizeBox" name="randomizeBox">
                         <label id="randomizeBoxLabel" for="randomizeBox">Questions au hasard?</label>
+                        <input type="checkbox" id="wordByWordBox" name="wordByWordBox">
+                        <label id="wordByWordLabel" for="wordByWordBox">Mot par mot?</label>
                     </div>`;
 
     questionZone.style.top = "0%";
@@ -236,7 +243,6 @@ function toggleResponse(textContent) {
  * 
  */
 function showResponses() {
-    const questionInner = document.getElementById("questionInner");
     const numberOfResponse = parseInt(document.getElementById("numberOfAnswerInput").value);
     const goodResponse = currentGame.content[currentQuestionIndex].answers[0];
     const responseToShow = shuffleArray(currentGame.content[currentQuestionIndex].answers.slice(1)).slice(0, numberOfResponse - 1);
@@ -248,6 +254,23 @@ function showResponses() {
     .reduce((prev, current) => prev + current, "");
 }
 
+function updateQuestion() {
+    if (currentGame.content[currentQuestionIndex].question != undefined) {
+        const elem = document.getElementById("questionQuestion");
+        const textToShow = `${
+                currentGame.content[currentQuestionIndex].question
+                .split(" ").slice(0, numberOfWords).reduce((prev, current) => `${prev} ${current}`, "")}
+                <span style="color: rgba(0, 0, 0, 0)">${currentGame.content[currentQuestionIndex].question
+                .split(" ").slice(numberOfWords, Number.POSITIVE_INFINITY).reduce((prev, current) => `${prev} ${current}`, "")}
+                </span>`;
+        if(elem == null) {
+            questionInner.innerHTML += `<div id="questionQuestion">${textToShow}</div>`;
+        } else {
+            elem.innerHTML = textToShow;
+        }
+    }
+}
+
 /**
  * Affiche une prochaine question
  * @param {number} cursor Le nombre de question à passer
@@ -257,17 +280,25 @@ function showContent(cursor) {
     const prev = document.getElementById("previous");
     const next = document.getElementById("next");
 
-    if(currentQuestionIndex == -1 && document.getElementById("randomizeBox").checked) {
-        currentGame = structuredClone(currentGame);
-        shuffleArray(currentGame.content);
+    if(currentQuestionIndex == -1) {
+        if(document.getElementById("randomizeBox").checked) {
+            currentGame = structuredClone(currentGame);
+            shuffleArray(currentGame.content);
+        }
+        wordByWord = document.getElementById("wordByWordBox").checked;
+    }
+
+    if(wordByWord) {
+        numberOfWords = 0;
+    } else {
+        numberOfWords = Number.POSITIVE_INFINITY;
     }
 
     currentQuestionIndex += cursor;
 
     questionInner.innerHTML = `<div id="questionTitle">Question n°${(currentQuestionIndex + 1)}</div>`;
 
-    if (currentGame.content[currentQuestionIndex].question != undefined)
-        questionInner.innerHTML += `<div id="questionQuestion">${currentGame.content[currentQuestionIndex].question}</div>`;
+    updateQuestion();
 
     switch (currentGame.content[currentQuestionIndex].type) {
         case "picture":
@@ -293,3 +324,30 @@ function showContent(cursor) {
     if (currentQuestionIndex < 1) { prev.style.left = "-100%"; } else { prev.style.left = "0%"; }
     if (currentQuestionIndex + 1 >= currentGame.content.length) { next.style.right = "-100%"; } else { next.style.right = "0%"; }
 }
+
+document.addEventListener('keydown', (e) => {
+    if (!e.ctrlKey) return
+
+    switch (e.key) {
+        case "a":
+            if (currentQuestion == undefined || currentQuestion <= 1) break
+            showContent(-1)
+            break
+        case "z":
+            if (currentGame == undefined) break
+            if (currentQuestion >= currentGame.content.length) break
+            showContent(1)
+            break
+        case "e":
+            nextPlayer()
+            break
+        case "+":
+            if(wordByWord) {
+                numberOfWords += 1;
+                updateQuestion();
+            }
+        default:
+            break
+    }
+    e.preventDefault()
+});
