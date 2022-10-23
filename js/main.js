@@ -221,6 +221,15 @@ function hideQuestion() {
     div.style.top = "-100%";
 }
 
+function toggleResponse(textContent) {
+    const goodElement = Array.prototype.slice.call(document.getElementsByClassName("responseText"))
+    .find((value) => value.textContent == textContent);
+    if(goodElement.classList.contains("lineThrought")) {
+        goodElement.classList.remove("lineThrought");
+    } else {
+        goodElement.classList.add("lineThrought");
+    }
+}
 
 /**
  * Afficher un nombre de réponses donnée selon l'input "numberOfAnswerInput", de manière aléatoire
@@ -235,7 +244,7 @@ function showResponses() {
 
     document.getElementById("questionResponses").innerHTML = 
     shuffleArray(responseToShow)
-    .map(response => `<div id="responseText">${response}</div>`)
+    .map(response => `<div onClick='toggleResponse("${response.replaceAll("'", "\\'")}")' class="responseText">${response}</div>`)
     .reduce((prev, current) => prev + current, "");
 }
 
